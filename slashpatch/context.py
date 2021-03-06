@@ -21,7 +21,7 @@ class Context:
         if content:
             data["content"] = content
         if embed:
-            data["embed"] = embed
+            data["embeds"] = [embed]
         if ephemeral:
             data["flags"] = 64
 
