@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "slashpatch"
+version = "1.0.0"
+description = "A command handler/dispatcher webserver for Discord slash commands"
+authors = ["vcokltfre <vcokltfre@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.63.0"
+uvicorn = "^0.13.4"
+discord-interactions = "^0.2.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
