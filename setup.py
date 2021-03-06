@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="slashpatch",
-    version="1.0.0",
+    version="1.1.0",
     author="vcokltfre",
     author_email="vcokltfre@gmail.com",
     description="A command handler/dispatcher webserver for Discord slash commands",
