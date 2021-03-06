@@ -1,3 +1,8 @@
+from datetime import datetime
+from dateutil import parser
+from typing import Optional, List
+
+
 class OptionType:
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
@@ -129,3 +134,57 @@ class SubCommandGroup(SlashPatchObject):
                 raise TypeError(f"Invalid option received! <Type={type}>")
 
             self.options.append(c(option["name"], option["value"]))
+
+
+class ResolvedObject:
+    def __init__(self, id: int, name: str):
+        self.id = id
+
+
+class ResolvedUser(ResolvedObject):
+    def __init__(self, data: dict):
+        super().__init__(int(data["id"]))
+
+        self.username: str = data["username"]
+        self.discriminator: int = int(data["discriminator"])
+        self.public_flags: int = data["public_flags"]
+        self.avatar: Optional[str] = data["avatar"]
+
+
+class ResolvedMember(ResolvedObject):
+    def __init__(self, user: ResolvedUser, data: dict):
+        super().__init__(user.id)
+
+        self.user: ResolvedUser = user
+        self.is_pending: bool = data["is_pending"]
+        self.pending: bool = data["pending"]
+        self.nick: Optional[str] = data["nick"]
+        self.joined_at: parser.isoparse(data["joined_at"])
+        self.role_ids: List[int] = [int(role) for role in data["role_ids"]]
+        self.premium_since: Optional[datetime] = None
+
+        if ps := data["premium_since"]:
+            self.premium_since = parser.isoparse(ps)
+
+
+class ResolvedChannel(ResolvedObject):
+    def __init__(self, data: dict):
+        super().__init__(int(data["id"]))
+
+        self.name: str = data["name"]
+        self.permissions: int = int(data["permissions"])
+        self.type: int = data["type"]
+
+
+class ResolvedRole(ResolvedObject):
+    def __init__(self, data: dict):
+        super().__init__(int(data["id"]))
+
+        self.name: str = data["name"]
+        self.color: int = data["color"]
+        self.hoist: bool = data["hoist"]
+        self.managed: bool = data["managed"]
+        self.mentionable: bool = data["mentionable"]
+        self.permissions: int = int(data["permissions"])
+        self.position: int = data["position"]
+        self.tags: Optional[dict] = data.get("tags", {})
