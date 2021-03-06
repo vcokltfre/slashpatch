@@ -6,6 +6,7 @@ from discord_interactions import verify_key
 from asyncio import iscoroutinefunction as iscoro
 
 from .context import Context
+from .command import Cog
 
 
 class Server(FastAPI):
@@ -16,6 +17,7 @@ class Server(FastAPI):
         self.add_route(interactions_path, self.__recv, methods=["POST"])
 
         self.commands = {}
+        self.cogs = {}
 
     async def __recv(self, req: Request):
         body = await req.body()
@@ -31,7 +33,9 @@ class Server(FastAPI):
 
         name = context.name
         if name in self.commands:
-            result = await self.commands[name](context)
+            cog, cmd = self.commands[name]
+
+            result = await cmd(cog, context)
             if isinstance(result, JSONResponse):
                 return result
 
@@ -39,16 +43,14 @@ class Server(FastAPI):
 
         raise HTTPException(404, "Command not found.")
 
-    def add_command(self, func, name: str = None):
+    def add_command(self, cog: Cog, func, name: str = None):
         name = name or func.__name__
 
         if not iscoro(func):
             raise TypeError("Command functions must be coroutines.")
 
-        self.commands[name] = func
+        self.commands[name] = (cog, func)
 
-    def command(self, name=None):
-        def decorator(func):
-            self.add_command(func, name)
-
-        return decorator
+    def add_cog(self, cog: Cog):
+        for command in cog.get_commands():
+            self.add_command(cog, command.func, command.name)
