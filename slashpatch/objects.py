@@ -137,7 +137,7 @@ class SubCommandGroup(SlashPatchObject):
 
 
 class ResolvedObject:
-    def __init__(self, id: int, name: str):
+    def __init__(self, id: int):
         self.id = id
 
 
