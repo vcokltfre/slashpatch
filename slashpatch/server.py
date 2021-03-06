@@ -5,6 +5,8 @@ from fastapi.exceptions import HTTPException
 from discord_interactions import verify_key
 from asyncio import iscoroutinefunction as iscoro
 
+from .context import Context
+
 
 class Server(FastAPI):
     def __init__(self, public_key: str, *args, interactions_path: str = "/interactions", **kwargs):
@@ -25,19 +27,17 @@ class Server(FastAPI):
             raise HTTPException(400)
 
         data = await req.json()
-        command = data["data"]
+        context = Context(data)
 
-        name = command["name"]
+        name = context.name
         if name in self.commands:
-            return JSONResponse(await self.commands[name](data, command))
+            result = await self.commands[name](context)
+            if isinstance(result, JSONResponse):
+                return result
 
-        return JSONResponse({
-            "type": 4,
-            "data": {
-                "content": "Command not found.",
-                "flags": 64
-            }
-        })
+            raise Exception("Command responses must be valid JSONResponse objects.")
+
+        raise HTTPException(404, "Command not found.")
 
     def add_command(self, func, name: str = None):
         name = name or func.__name__
