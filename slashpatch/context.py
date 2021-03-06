@@ -10,7 +10,7 @@ class Context:
     def __init__(self, raw: dict):
         self.raw = raw
         self.channel_id = int(raw["channel_id"])
-        self.guild_id = int(raw.get("guild_id")) if "guild_id" in raw
+        self.guild_id = int(raw.get("guild_id")) if "guild_id" in raw else None
         self.interaction_id = int(raw["id"])
 
         self.data = data = self.raw["data"]
