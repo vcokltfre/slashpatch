@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 
 from discord_interactions import verify_key
+from asyncio import iscoroutinefunction as iscoro
 
 
 class Server(FastAPI):
@@ -12,7 +13,7 @@ class Server(FastAPI):
         self.pubkey = public_key
         self.add_route(interactions_path, self.__recv, methods=["POST"])
 
-        self.cogs = {}
+        self.commands = {}
 
     async def __recv(self, req: Request):
         body = await req.body()
@@ -26,11 +27,28 @@ class Server(FastAPI):
         data = await req.json()
         command = data["data"]
 
-        # TODO: process commands
+        name = command["name"]
+        if name in self.commands:
+            return JSONResponse(await self.commands[name](data, command))
 
         return JSONResponse({
             "type": 4,
             "data": {
-                "content": "Ok."
+                "content": "Command not found.",
+                "flags": 64
             }
         })
+
+    def add_command(self, func, name: str = None):
+        name = name or func.__name__
+
+        if not iscoro(func):
+            raise TypeError("Command functions must be coroutines.")
+
+        self.commands[name] = func
+
+    def command(self, name=None):
+        def decorator(func):
+            self.add_command(func, name)
+
+        return decorator
