@@ -10,11 +10,11 @@ class Server(FastAPI):
         super().__init__(*args, **kwargs)
 
         self.pubkey = public_key
-        self.add_route(interactions_path, self.command, methods=["POST"])
+        self.add_route(interactions_path, self.__recv, methods=["POST"])
 
         self.cogs = {}
 
-    async def command(self, req: Request):
+    async def __recv(self, req: Request):
         body = await req.body()
 
         sig = req.headers["X-Signature-Ed25519"]
