@@ -159,8 +159,8 @@ class ResolvedMember(ResolvedObject):
         self.is_pending: bool = data["is_pending"]
         self.pending: bool = data["pending"]
         self.nick: Optional[str] = data["nick"]
-        self.joined_at: parser.isoparse(data["joined_at"])
-        self.role_ids: List[int] = [int(role) for role in data["role_ids"]]
+        self.joined_at: datetime = parser.isoparse(data["joined_at"])
+        self.role_ids: List[int] = [int(role) for role in data["roles"]]
         self.premium_since: Optional[datetime] = None
 
         if ps := data["premium_since"]:
