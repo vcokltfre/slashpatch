@@ -23,6 +23,11 @@ class Server(FastAPI):
         if not verify_key(body, sig, ts, self.pubkey):
             raise HTTPException(400)
 
+        data = await req.json()
+        command = data["data"]
+
+        # TODO: process commands
+
         return JSONResponse({
             "type": 4,
             "data": {
