@@ -4,10 +4,11 @@ from fastapi.responses import JSONResponse
 class Context:
     """A Discord slash command context."""
 
-    def __init__(self, data: dict):
-        self.channel_id = data["channel_id"]
+    def __init__(self, raw: dict):
+        self.raw = raw
+        self.channel_id = raw["channel_id"]
 
-        data = data["data"]
+        self.data = data = self.raw["data"]
 
         self.id = data["id"]
         self.name = data["name"]
